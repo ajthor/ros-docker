@@ -1,6 +1,6 @@
 FROM ros:indigo
 
-RUN apt-get update -q && apt-get install -qy \
+RUN apt-get -qq update && apt-get -qy install \
     ros-indigo-ros-tutorials \
     ros-indigo-common-tutorials \
     && rm -rf /var/lib/apt/lists/*

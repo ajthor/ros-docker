@@ -2,32 +2,41 @@ version: '3'
 
 services:
   master:
-    build: "./images/ros/${ROS_VERSION:-indigo}"
+    build: "./images/ros/${ROS_VERSION:-kinetic}"
     container_name: master
+    # Consider using 'expose' instead, that way the ports will only be accessible to the internal network.
+    ports:
+      - "11311:11311"
+    environment:
+      - "ROS_HOSTNAME=master"
     command: roscore
 
-  talker:
-    build: "./images/ros/${ROS_VERSION:-indigo}"
-    container_name: talker
-    environment:
-      - "ROS_HOSTNAME=talker"
-      - "ROS_MASTER_URI=http://master:11311"
-    command: rosrun roscpp_tutorials talker
-
-  listener:
-    build: "./images/ros/${ROS_VERSION:-indigo}"
-    container_name: listener
-    environment:
-      - "ROS_HOSTNAME=listener"
-      - "ROS_MASTER_URI=http://master:11311"
-    command: rosrun roscpp_tutorials listener
+  # talker:
+  #   build: "./images/ros/${ROS_VERSION:-kinetic}"
+  #   container_name: talker
+  #   environment:
+  #     - "ROS_HOSTNAME=talker"
+  #     - "ROS_MASTER_URI=http://master:11311"
+  #   command: rosrun roscpp_tutorials talker
+  #
+  # listener:
+  #   build: "./images/ros/${ROS_VERSION:-kinetic}"
+  #   container_name: listener
+  #   environment:
+  #     - "ROS_HOSTNAME=listener"
+  #     - "ROS_MASTER_URI=http://master:11311"
+  #   command: rosrun roscpp_tutorials listener
 
   gzserver:
     build: "./images/gazebo/gzserver${GAZEBO_VERSION:-8}"
     container_name: gazebo
     environment:
-      - "ROS_HOSTNAME=listener"
-      - "ROS_MASTER_URI=http://master:11311"
-    expose:
-      - 11345
+      # - "ROS_HOSTNAME=gazebo"
+      # - "ROS_MASTER_URI=http://master:11311"
+      - "GAZEBO_HOSTNAME=gazebo"
+      # - "GAZEBO_MASTER_URI=http://gazebo:11345"
+    ports:
+      - "11345:11345"
+    volumes:
+      - ./logs/:/root/.gazebo/
     command: gzserver

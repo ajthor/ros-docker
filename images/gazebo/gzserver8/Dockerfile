@@ -1,9 +1,13 @@
 FROM gazebo:gzserver8
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get -q dist-upgrade
+
+RUN apt-get -qq update && apt-get -qy install \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./gazebo_entrypoint.sh /
+COPY ./pendulum_demo.sh /pendulum_demo.sh
 
-ENTRYPOINT ["/gazebo_entrypoint.sh"]
+EXPOSE 11345
+
+CMD ["gzserver"]

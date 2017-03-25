@@ -1,6 +1,6 @@
 FROM ros:kinetic
 
-RUN apt-get update -q && apt-get install -qy \
+RUN apt-get -qq update && apt-get -qy install \
     ros-kinetic-ros-tutorials \
     ros-kinetic-common-tutorials \
     && rm -rf /var/lib/apt/lists/*
