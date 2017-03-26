@@ -2,7 +2,7 @@ version: '3'
 
 services:
   master:
-    build: "./images/ros/${ROS_VERSION:-kinetic}"
+    image: "ros:kinetic"
     container_name: master
     # Consider using 'expose' instead, that way the ports will only be accessible to the internal network.
     ports:
@@ -11,6 +11,18 @@ services:
       - "ROS_HOSTNAME=master"
     command: roscore
 
+  worker:
+    build: "./images/worker"
+    container_name: worker
+    environment:
+      - "ROS_HOSTNAME=worker"
+      - "ROS_MASTER_URI=http://master:11311"
+      - "GAZEBO_MASTER_URI=http://gazebo:11345"
+    # depends_on:
+    #   - master
+    volumes:
+      - ./catkin_ws/:/root/catkin_ws/
+    command: roslaunch gazebo_ros rubble_world.launch gui:=false headless:=true debug:=true
   # talker:
   #   build: "./images/ros/${ROS_VERSION:-kinetic}"
   #   container_name: talker
@@ -27,16 +39,29 @@ services:
   #     - "ROS_MASTER_URI=http://master:11311"
   #   command: rosrun roscpp_tutorials listener
 
-  gzserver:
-    build: "./images/gazebo/gzserver${GAZEBO_VERSION:-8}"
+  # gzserver:
+  #   build: "./images/gazebo/gzserver${GAZEBO_VERSION:-8}"
+  #   container_name: gazebo
+  #   # environment:
+  #     # - "ROS_HOSTNAME=gazebo"
+  #     # - "ROS_MASTER_URI=http://master:11311"
+  #     # - "GAZEBO_HOSTNAME=gazebo"
+  #     # - "GAZEBO_MASTER_URI=http://gazebo:11345"
+  #   # network_mode: bridge
+  #   ports:
+  #     - "11345:11345"
+  #   volumes:
+  #     - ./logs/:/root/.gazebo/
+  #   command: gzserver rubble.world
+
+  gzweb:
+    build: "./images/gazebo/gzweb"
     container_name: gazebo
-    environment:
-      # - "ROS_HOSTNAME=gazebo"
-      # - "ROS_MASTER_URI=http://master:11311"
-      - "GAZEBO_HOSTNAME=gazebo"
-      # - "GAZEBO_MASTER_URI=http://gazebo:11345"
+    # environment:
+    #   - "GAZEBO_HOSTNAME=gazebo"
+    #   - "GAZEBO_MASTER_URI=http://gazebo:11345"
     ports:
+      - "8080:8080"
       - "11345:11345"
     volumes:
       - ./logs/:/root/.gazebo/
-    command: gzserver
